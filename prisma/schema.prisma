@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id          String  @id
+  logo        String?
+  company        String
+  domain      String
+  external_id String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  user   User[]
+  upload Upload[]
+  tags   Tags[]
+}
+
+model User {
+  id String @id
+
+  companyId String
+
+  avatar   String?
+  name     String
+  email    String
+  password String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  upload Upload[]
+}
+
+model Upload {
+  id String @id
+
+  companyId String
+  userId    String
+  tagsId    String?
+
+  duration    String
+  title       String
+  language    String  @default("PT")
+  storageKey  String?
+  description String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  tag     Tags?   @relation(fields: [tagsId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+}
+
+model Tags {
+  id String @id
+
+  companyId String
+
+  name String
+  slug String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  upload Upload[]
+}
